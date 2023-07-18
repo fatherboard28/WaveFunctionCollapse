@@ -38,9 +38,16 @@ namespace WFC
                 }
         }
 
+        private void Awake()
+        {
+            CreateMap();
+            CollapseBlocks();
+        }
         public void CollapseBlocks()
         {
+            _blockQ = new Queue<Block>();
             List<Block> remainingHighestEntropies = RemainingHighestEntropies();
+            Debug.Log(remainingHighestEntropies.Count);
             while (remainingHighestEntropies.Count > 0)
             {
                 int i = 0;
@@ -77,7 +84,7 @@ namespace WFC
             for(int i = 0; i < SizeX; i++)
                 for (int j = 0; j < SizeY; j++)
                 {
-                    if (_map[i, j].Entropy == hightestEntropy)
+                    if (_map[i, j].Entropy >= hightestEntropy)
                     {
                         if (_map[i, j].Entropy > hightestEntropy)
                         {
@@ -94,10 +101,14 @@ namespace WFC
         public void AddToQueue(Block block)
         {
             int x = block.X; int y = block.Y;
-            _blockQ.Enqueue(_map[x - 1, y]);
-            _blockQ.Enqueue(_map[x + 1, y]);
-            _blockQ.Enqueue(_map[x, y - 1]);
-            _blockQ.Enqueue(_map[x, y + 1]);
+            if (x > 0)
+                _blockQ.Enqueue(_map[x - 1, y]);
+            if (x < SizeX-1)
+                _blockQ.Enqueue(_map[x + 1, y]);
+            if (y > 0)
+                _blockQ.Enqueue(_map[x, y - 1]);
+            if (y < SizeY-1)
+                _blockQ.Enqueue(_map[x, y + 1]);
         }
 
 
@@ -109,10 +120,31 @@ namespace WFC
                 return false;
             }
 
-            List<BlockData> tmp = (List<BlockData>)_map[block.X - 1, block.Y].PotentialBlocks.AsQueryable()
-                                                        .Intersect(_map[block.X + 1, block.Y].PotentialBlocks)
-                                                        .Intersect(_map[block.X, block.Y + 1].PotentialBlocks)
-                                                        .Intersect(_map[block.X, block.Y - 1].PotentialBlocks);
+            List<List<BlockData>> datasToIntersect = new List<List<BlockData>>();
+            if (block.X > 0)
+                datasToIntersect.Add(_map[block.X - 1, block.Y].PotentialBlocks);
+            if (block.X < SizeX-1)
+                datasToIntersect.Add(_map[block.X + 1, block.Y].PotentialBlocks);
+            if (block.Y > 0)
+                datasToIntersect.Add(_map[block.X, block.Y - 1].PotentialBlocks);
+            if (block.Y < SizeY-1)
+                datasToIntersect.Add(_map[block.X, block.Y + 1].PotentialBlocks);
+
+            List<BlockData> tmp = new List<BlockData>();
+            int i = 0; 
+            foreach (List<BlockData> bd in datasToIntersect)
+            {
+                if (i == 0)
+                {
+                    tmp = bd;
+                }
+                else
+                {
+                    tmp = tmp.Intersect(bd).ToList();
+                }
+                i++;
+            }
+
             if (block.PotentialBlocks == tmp)
             {
                 return false;
