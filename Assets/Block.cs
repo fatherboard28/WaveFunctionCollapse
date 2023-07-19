@@ -31,8 +31,9 @@ namespace WFC
         //Returns true if entropy > 1, false if entropy == 1
         public void CollapseBlock()
         {
-            int i = 0;
             int rand = Random.Range(0, PotentialBlocks.Count);
+            Debug.Log(rand + " -- ");
+            Debug.Log(PotentialBlocks.ToArray()[0] + " "  + PotentialBlocks.ToArray()[rand]);
             _blockData = PotentialBlocks.ToArray()[rand];
 
             PotentialBlocks.Clear();
@@ -43,17 +44,11 @@ namespace WFC
 
         public void SetBlockInfo()
         {
-            Debug.Log(PotentialBlocks.Count);
             if (PotentialBlocks.Count == 1)
             {
                 _blockData = PotentialBlocks.ToArray()[0];
                 gameObject.GetComponent<MeshRenderer>().sharedMaterial = _blockData.Prefab.GetComponent<MeshRenderer>().sharedMaterial;
                 gameObject.GetComponent<MeshFilter>().sharedMesh = _blockData.Prefab.GetComponent<MeshFilter>().sharedMesh;
-            }
-            else
-            {
-                Debug.Log(X + ":" + Y);
-                Debug.Log(_blockData);//+ " - " + _blockData.Prefab.GetComponent<MeshRenderer>().sharedMaterial + " | " + _blockData.Prefab.GetComponent<MeshFilter>().sharedMesh);
             }
             
         }

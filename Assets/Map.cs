@@ -46,12 +46,13 @@ namespace WFC
         public void CollapseBlocks()
         {
             _blockQ = new Queue<Block>();
-            List<Block> remainingHighestEntropies = RemainingHighestEntropies();
-            while (remainingHighestEntropies.Count > 0 && remainingHighestEntropies.First().Entropy != 1)
+            List<Block> remainingLowEntropies = RemainingLowEntropies();
+            while (remainingLowEntropies.Count > 0 && remainingLowEntropies.First().Entropy != 1)
             {
-                int rand = Random.Range(0, remainingHighestEntropies.Count);
-                remainingHighestEntropies.ToArray()[rand].CollapseBlock();
-                AddToQueue(remainingHighestEntropies.ToArray()[rand]);
+                int rand = Random.Range(0, remainingLowEntropies.Count);
+                Debug.Log(rand);
+                remainingLowEntropies.ToArray()[rand].CollapseBlock();
+                AddToQueue(remainingLowEntropies.ToArray()[rand]);
 
                 while (_blockQ.Count > 0)
                 {
@@ -63,28 +64,28 @@ namespace WFC
                     }
                 }
 
-                remainingHighestEntropies = RemainingHighestEntropies();
+                remainingLowEntropies = RemainingLowEntropies();
             }
 
-            foreach(Block b in remainingHighestEntropies)
+            foreach(Block b in remainingLowEntropies)
             {
                 b.SetBlockInfo();
             }
         }
 
-        public List<Block> RemainingHighestEntropies()
+        public List<Block> RemainingLowEntropies()
         {
             List<Block> blocks = new List<Block>();
-            int hightestEntropy = 1;
+            int lowestEntropy = 100;
 
             for(int i = 0; i < SizeX; i++)
                 for (int j = 0; j < SizeY; j++)
                 {
-                    if (_map[i, j].Entropy >= hightestEntropy)
+                    if (_map[i, j].Entropy <= lowestEntropy)
                     {
-                        if (_map[i, j].Entropy > hightestEntropy)
+                        if (_map[i, j].Entropy < lowestEntropy)
                         {
-                            hightestEntropy = _map[i, j].Entropy;
+                            lowestEntropy = _map[i, j].Entropy;
                             blocks.Clear();
                         }
                         blocks.Add(_map[i, j]);
